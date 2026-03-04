@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 const GOLD = "#D6B56A";
 const MUTED = "rgba(255,255,255,0.55)";
-const NAV_BG = "rgba(6, 20, 36, 0.92)"; // deep navy, slightly transparent
+const NAV_BG = "rgba(6, 20, 36, 0.92)";
 const NAV_BORDER = "rgba(214,181,106,0.18)";
 
 export default function TabLayout() {
@@ -11,7 +11,6 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: true,
         tabBarActiveTintColor: GOLD,
         tabBarInactiveTintColor: MUTED,
         tabBarStyle: {
@@ -40,14 +39,28 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="explore"
+        name="workouts"
         options={{
-          title: "Explore",
+          title: "Workouts",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="compass" size={size ?? 22} color={color} />
+            <Ionicons name="barbell" size={size ?? 22} color={color} />
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="schedule"
+        options={{
+          title: "Schedule",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calendar" size={size ?? 22} color={color} />
+          ),
+        }}
+      />
+
+      {/* hide anything you don't want */}
+      <Tabs.Screen name="explore" options={{ href: null }} />
+      <Tabs.Screen name="workouts-group" options={{ href: null }} />
     </Tabs>
   );
 }

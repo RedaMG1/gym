@@ -20,10 +20,9 @@ const MUSCLES = [
   { key: "legs", label: "LEGS", icon: "walk-outline" as const },
 ];
 
-export default function WorkoutsIndex() {
+export default function WorkoutsTab() {
   return (
     <>
-      {/* hide default white header */}
       <Stack.Screen options={{ headerShown: false }} />
 
       <LinearGradient
@@ -32,17 +31,13 @@ export default function WorkoutsIndex() {
         end={{ x: 0.8, y: 1 }}
         style={styles.container}
       >
-        {/* themed top area */}
+        {/* TAB HEADER (no back button because it's a tab) */}
         <View style={styles.topNav}>
-          <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={20} color={GOLD} />
-          </Pressable>
-
+          <View style={{ width: 40 }} />
           <View style={styles.navCenter}>
             <Text style={styles.navTitle}>WORKOUTS</Text>
-            <Text style={styles.navSub}>Choose a muscle group</Text>
+            <Text style={styles.navSub}>CHOOSE A MUSCLE GROUP</Text>
           </View>
-
           <View style={{ width: 40 }} />
         </View>
 
@@ -56,7 +51,7 @@ export default function WorkoutsIndex() {
             <Pressable
               onPress={() =>
                 router.push({
-                  pathname: "/workouts/[group]",
+                  pathname: "/workouts-group",
                   params: { group: item.key },
                 })
               }
@@ -92,16 +87,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "rgba(214,181,106,0.25)",
-    backgroundColor: "rgba(0,0,0,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
   },
   navCenter: { alignItems: "center", gap: 4 },
   navTitle: {
