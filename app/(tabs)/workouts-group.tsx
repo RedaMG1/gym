@@ -13,13 +13,12 @@ function prettyName(v?: string) {
   return v.replace(/-/g, " ").toUpperCase();
 }
 
-export default function GroupPage() {
+export default function WorkoutsGroup() {
   const { group } = useLocalSearchParams<{ group?: string }>();
   const title = prettyName(group);
 
   return (
     <>
-      {/* hide default header (the white bar) */}
       <Stack.Screen options={{ headerShown: false }} />
 
       <LinearGradient
@@ -28,25 +27,26 @@ export default function GroupPage() {
         end={{ x: 0.8, y: 1 }}
         style={styles.container}
       >
-        {/* themed top navigation */}
+        {/* Top navigation */}
         <View style={styles.topNav}>
-          <Pressable onPress={() => router.back()} style={styles.backBtn}>
+          {/* ALWAYS go to Workouts tab */}
+          <Pressable onPress={() => router.replace("/workouts")} style={styles.backBtn}>
             <Ionicons name="arrow-back" size={20} color={GOLD} />
           </Pressable>
 
           <View style={styles.navCenter}>
             <Text style={styles.navTitle}>{title}</Text>
-            <Text style={styles.navSub}>Exercises list coming next</Text>
+            <Text style={styles.navSub}>EXERCISES</Text>
           </View>
 
           <View style={{ width: 40 }} />
         </View>
 
-        {/* Content placeholder */}
+        {/* Content */}
         <View style={styles.body}>
           <Text style={styles.big}>{title}</Text>
           <Text style={styles.small}>
-            Tell me what you want here: exercises, sets/reps tracker, or programs.
+            Next step: add exercises + sets/reps tracker here.
           </Text>
         </View>
       </LinearGradient>
