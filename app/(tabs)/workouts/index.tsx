@@ -20,10 +20,10 @@ const MUSCLES = [
   { key: "legs", label: "LEGS", icon: "walk-outline" as const },
 ];
 
-export default function Workouts() {
+export default function WorkoutsIndex() {
   return (
     <>
-      {/* Hide the default white header */}
+      {/* hide default white header */}
       <Stack.Screen options={{ headerShown: false }} />
 
       <LinearGradient
@@ -32,12 +32,17 @@ export default function Workouts() {
         end={{ x: 0.8, y: 1 }}
         style={styles.container}
       >
-        {/* Themed top navigation (below) */}
+        {/* themed top area */}
         <View style={styles.topNav}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="arrow-back" size={20} color={GOLD} />
           </Pressable>
-          <Text style={styles.navTitle}>WORKOUTS</Text>
+
+          <View style={styles.navCenter}>
+            <Text style={styles.navTitle}>WORKOUTS</Text>
+            <Text style={styles.navSub}>Choose a muscle group</Text>
+          </View>
+
           <View style={{ width: 40 }} />
         </View>
 
@@ -83,7 +88,7 @@ const styles = StyleSheet.create({
   topNav: {
     paddingTop: 44,
     paddingHorizontal: 16,
-    paddingBottom: 10,
+    paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -98,11 +103,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  navCenter: { alignItems: "center", gap: 4 },
   navTitle: {
     fontSize: 14,
     letterSpacing: 2,
     fontWeight: "900",
     color: "rgba(255,255,255,0.85)",
+  },
+  navSub: {
+    fontSize: 11,
+    letterSpacing: 1,
+    color: "rgba(214,181,106,0.65)",
+    textTransform: "uppercase",
   },
 
   content: {
