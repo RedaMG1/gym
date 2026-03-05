@@ -1,5 +1,7 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useEffect } from "react";
+import { initDb } from "@/lib/db";
 
 const GOLD = "#D6B56A";
 const MUTED = "rgba(255,255,255,0.55)";
@@ -7,6 +9,10 @@ const NAV_BG = "rgba(6, 20, 36, 0.92)";
 const NAV_BORDER = "rgba(214,181,106,0.18)";
 
 export default function TabLayout() {
+  useEffect(() => {
+    initDb().catch(console.error);
+  }, []);
+
   return (
     <Tabs
       screenOptions={{
@@ -28,7 +34,6 @@ export default function TabLayout() {
         },
       }}
     >
-      {/* ✅ Only these 3 should be visible */}
       <Tabs.Screen
         name="index"
         options={{
@@ -59,7 +64,7 @@ export default function TabLayout() {
         }}
       />
 
-      {/* ❌ Hide these from the navbar, but keep routes working */}
+      {/* hidden routes */}
       <Tabs.Screen name="workouts-group" options={{ href: null }} />
       <Tabs.Screen name="exercise" options={{ href: null }} />
       <Tabs.Screen name="tracker" options={{ href: null }} />

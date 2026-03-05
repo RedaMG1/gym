@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Image, TextInput } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
+import { getLatestExerciseWeight, saveExerciseWeight } from "@/lib/db";
 
 const GOLD = "#D6B56A";
 const BG1 = "#071A2A";
@@ -24,13 +25,16 @@ export default function Tracker() {
     title?: string;
   }>();
 
+  const g = String(group ?? "");
+  const ex = String(exercise ?? "");
+  const v = String(variant ?? "");
+
   const displayTitle = title ? String(title).toUpperCase() : prettyName(variant);
 
   const media = useMemo(() => {
     if (!variant) return undefined;
-    const g = (group ?? "").toLowerCase();
+    const gg = (group ?? "").toLowerCase();
 
-    // CHEST
     const chest: Record<string, any> = {
       "flat-bench-press": require("../../assets/gifs/chest/flat Bench Press.gif"),
       "incline-bench-press": require("../../assets/gifs/chest/incline Bench Press.gif"),
@@ -41,7 +45,6 @@ export default function Tracker() {
       "chest-dips": require("../../assets/gifs/chest/chest dips.gif"),
     };
 
-    // SHOULDERS (exact names)
     const shoulders: Record<string, any> = {
       "dumbbell-shoulder-press": require("../../assets/gifs/shoulders/dumbbell Shoulder Press.gif"),
       "machine-shoulder-press": require("../../assets/gifs/shoulders/machine Shoulder Press.gif"),
@@ -50,7 +53,6 @@ export default function Tracker() {
       "reverse-pec-deck-fly": require("../../assets/gifs/shoulders/reverse Pec Deck Fly.gif"),
     };
 
-    // ✅ LEGS (EXACT names from your screenshot)
     const legs: Record<string, any> = {
       "leg-press": require("../../assets/gifs/legs/leg press.gif"),
       "leg-extension": require("../../assets/gifs/legs/leg extension.gif"),
@@ -59,19 +61,34 @@ export default function Tracker() {
       "hack-squat": require("../../assets/gifs/legs/hack squat.jpg"),
     };
 
-    if (g === "chest") return chest[String(variant)];
-    if (g === "shoulders") return shoulders[String(variant)];
-    if (g === "legs") return legs[String(variant)];
+    if (gg === "chest") return chest[String(variant)];
+    if (gg === "shoulders") return shoulders[String(variant)];
+    if (gg === "legs") return legs[String(variant)];
     return undefined;
   }, [group, variant]);
 
-  const [currentWeight, setCurrentWeight] = useState<number>(80);
+  // ✅ per-exercise current weight, default 0
+  const [currentWeight, setCurrentWeight] = useState<number>(0);
   const [newWeight, setNewWeight] = useState<string>("");
 
-  function submitWeight() {
+  // load last weight for THIS exercise/variant only
+  useEffect(() => {
+    (async () => {
+      if (!g || !ex || !v) {
+        setCurrentWeight(0);
+        return;
+      }
+      const w = await getLatestExerciseWeight({ group: g, exercise: ex, variant: v });
+      setCurrentWeight(typeof w === "number" ? w : 0);
+    })();
+  }, [g, ex, v]);
+
+  async function submitWeight() {
     const cleaned = newWeight.replace(",", ".").trim();
     const value = Number(cleaned);
     if (!Number.isFinite(value) || value <= 0) return;
+
+    await saveExerciseWeight({ group: g, exercise: ex, variant: v, weight: value });
     setCurrentWeight(value);
     setNewWeight("");
   }
