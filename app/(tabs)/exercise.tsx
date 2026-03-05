@@ -5,11 +5,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 
 const GOLD = "#D6B56A";
-const MUTED = "rgba(255,255,255,0.65)";
 const BG1 = "#071A2A";
 const BG2 = "#061424";
 const CARD_BG = "rgba(12, 35, 52, 0.75)";
 const CARD_BORDER = "rgba(214,181,106,0.22)";
+const MUTED = "rgba(255,255,255,0.65)";
 
 function prettyName(v?: string) {
   if (!v) return "";
@@ -20,9 +20,11 @@ type Row = { id: string; title: string; gif?: any };
 
 export default function ExercisePage() {
   const { group, exercise } = useLocalSearchParams<{ group?: string; exercise?: string }>();
-  const title = prettyName(exercise);
+  const g = (group ?? "").toLowerCase();
+  const ex = String(exercise ?? "");
 
-  // ✅ Centralized GIF map (exact filenames)
+  const screenTitle = prettyName(exercise);
+
   const chestGifs = useMemo(
     () =>
       ({
@@ -43,18 +45,28 @@ export default function ExercisePage() {
         "dumbbell-shoulder-press": require("../../assets/gifs/shoulders/dumbbell Shoulder Press.gif"),
         "machine-shoulder-press": require("../../assets/gifs/shoulders/machine Shoulder Press.gif"),
         "dumbbell-lateral-raise": require("../../assets/gifs/shoulders/dumbbell lateral Raise.gif"),
-        // ✅ THIS is the one you’re missing in UI:
         "cable-lateral-raise": require("../../assets/gifs/shoulders/cable Lateral Raise.gif"),
         "reverse-pec-deck-fly": require("../../assets/gifs/shoulders/reverse Pec Deck Fly.gif"),
       }) as Record<string, any>,
     []
   );
 
-  const rows: Row[] = useMemo(() => {
-    const g = (group ?? "").toLowerCase();
+  const legGifs = useMemo(
+    () =>
+      ({
+        "leg-press": require("../../assets/gifs/legs/leg press.gif"),
+        "leg-extension": require("../../assets/gifs/legs/leg extension.gif"),
+        "leg-curl": require("../../assets/gifs/legs/Leg curl.gif"),
+        "hip-abduction": require("../../assets/gifs/legs/hip abduction.gif"),
+        "hack-squat": require("../../assets/gifs/legs/hack squat.jpg"),
+      }) as Record<string, any>,
+    []
+  );
 
+  const rows: Row[] = useMemo(() => {
+    // CHEST
     if (g === "chest") {
-      switch (exercise) {
+      switch (ex) {
         case "bench-press":
           return [
             { id: "flat-bench-press", title: "FLAT BENCH PRESS", gif: chestGifs["flat-bench-press"] },
@@ -75,62 +87,55 @@ export default function ExercisePage() {
       }
     }
 
+    // SHOULDERS
     if (g === "shoulders") {
-      switch (exercise) {
+      switch (ex) {
         case "shoulder-press":
           return [
-            {
-              id: "dumbbell-shoulder-press",
-              title: "DUMBBELL SHOULDER PRESS",
-              gif: shoulderGifs["dumbbell-shoulder-press"],
-            },
-            {
-              id: "machine-shoulder-press",
-              title: "MACHINE SHOULDER PRESS",
-              gif: shoulderGifs["machine-shoulder-press"],
-            },
+            { id: "dumbbell-shoulder-press", title: "DUMBBELL SHOULDER PRESS", gif: shoulderGifs["dumbbell-shoulder-press"] },
+            { id: "machine-shoulder-press", title: "MACHINE SHOULDER PRESS", gif: shoulderGifs["machine-shoulder-press"] },
           ];
-
         case "lateral-raise":
           return [
-            {
-              id: "dumbbell-lateral-raise",
-              title: "DUMBBELL LATERAL RAISE",
-              gif: shoulderGifs["dumbbell-lateral-raise"],
-            },
-            {
-              id: "cable-lateral-raise",
-              title: "CABLE LATERAL RAISE",
-              gif: shoulderGifs["cable-lateral-raise"],
-            },
+            { id: "dumbbell-lateral-raise", title: "DUMBBELL LATERAL RAISE", gif: shoulderGifs["dumbbell-lateral-raise"] },
+            { id: "cable-lateral-raise", title: "CABLE LATERAL RAISE", gif: shoulderGifs["cable-lateral-raise"] },
           ];
-
         case "rear-delt-fly":
-          return [
-            {
-              id: "reverse-pec-deck-fly",
-              title: "REVERSE PEC DECK FLY",
-              gif: shoulderGifs["reverse-pec-deck-fly"],
-            },
-          ];
+          return [{ id: "reverse-pec-deck-fly", title: "REVERSE PEC DECK FLY", gif: shoulderGifs["reverse-pec-deck-fly"] }];
         default:
           return [];
       }
     }
 
+    // ✅ LEGS (FIX): always return ONE row for whatever legs exercise was clicked
+    if (g === "legs") {
+      const titleMap: Record<string, string> = {
+        "leg-press": "LEG PRESS",
+        "leg-extension": "LEG EXTENSION",
+        "leg-curl": "LEG CURL",
+        "hip-abduction": "HIP ABDUCTION",
+        "hack-squat": "HACK SQUAT",
+      };
+
+      return [
+        {
+          id: ex,
+          title: titleMap[ex] ?? prettyName(ex),
+          gif: legGifs[ex],
+        },
+      ];
+    }
+
     return [];
-  }, [group, exercise, chestGifs, shoulderGifs]);
+  }, [g, ex, chestGifs, shoulderGifs, legGifs]);
+
+  const subtitle = g === "legs" ? "EXERCISE" : "SELECT A VARIATION";
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <LinearGradient
-        colors={[BG1, BG2, "#050E18"]}
-        start={{ x: 0.2, y: 0 }}
-        end={{ x: 0.8, y: 1 }}
-        style={styles.container}
-      >
+      <LinearGradient colors={[BG1, BG2, "#050E18"]} style={styles.container}>
         <View style={styles.topNav}>
           <Pressable
             onPress={() =>
@@ -145,8 +150,8 @@ export default function ExercisePage() {
           </Pressable>
 
           <View style={styles.navCenter}>
-            <Text style={styles.navTitle}>{title}</Text>
-            <Text style={styles.navSub}>SELECT A VARIATION</Text>
+            <Text style={styles.navTitle}>{screenTitle}</Text>
+            <Text style={styles.navSub}>{subtitle}</Text>
           </View>
 
           <View style={{ width: 40 }} />
@@ -156,6 +161,11 @@ export default function ExercisePage() {
           data={rows}
           keyExtractor={(i) => i.id}
           contentContainerStyle={styles.list}
+          ListEmptyComponent={
+            <View style={{ paddingTop: 40, alignItems: "center" }}>
+              <Text style={{ color: MUTED, fontWeight: "700" }}>No items</Text>
+            </View>
+          }
           renderItem={({ item }) => (
             <Pressable
               onPress={() =>

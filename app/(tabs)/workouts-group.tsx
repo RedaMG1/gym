@@ -26,11 +26,10 @@ type Block = {
 
 export default function WorkoutsGroup() {
   const { group } = useLocalSearchParams<{ group?: string }>();
+  const g = (group ?? "").toLowerCase();
   const title = prettyName(group);
 
   const blocks: Block[] = useMemo(() => {
-    const g = (group ?? "").toLowerCase();
-
     if (g === "chest") {
       return [
         {
@@ -64,7 +63,6 @@ export default function WorkoutsGroup() {
       ];
     }
 
-    // ✅ SHOULDERS (ONLY your list, no coming soon)
     if (g === "shoulders") {
       return [
         {
@@ -91,20 +89,54 @@ export default function WorkoutsGroup() {
       ];
     }
 
-    // If you open another group you haven't built yet, show nothing (empty)
+    if (g === "legs") {
+      return [
+        {
+          id: "leg-press",
+          title: "LEG PRESS",
+          subtitle: "Machine",
+          icon: "car-outline",
+          thumb: require("../../assets/gifs/legs/leg press.gif"),
+        },
+        {
+          id: "leg-extension",
+          title: "LEG EXTENSION",
+          subtitle: "Quads",
+          icon: "flash-outline",
+          thumb: require("../../assets/gifs/legs/leg extension.gif"),
+        },
+        {
+          id: "leg-curl",
+          title: "LEG CURL",
+          subtitle: "Hamstrings",
+          icon: "reload-outline",
+          thumb: require("../../assets/gifs/legs/Leg curl.gif"),
+        },
+        {
+          id: "hip-abduction",
+          title: "HIP ABDUCTION",
+          subtitle: "Glutes / Hips",
+          icon: "git-branch-outline",
+          thumb: require("../../assets/gifs/legs/hip abduction.gif"),
+        },
+        {
+          id: "hack-squat",
+          title: "HACK SQUAT",
+          subtitle: "Quads / Glutes",
+          icon: "walk-outline",
+          thumb: require("../../assets/gifs/legs/hack squat.jpg"),
+        },
+      ];
+    }
+
     return [];
-  }, [group]);
+  }, [g]);
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <LinearGradient
-        colors={[BG1, BG2, "#050E18"]}
-        start={{ x: 0.2, y: 0 }}
-        end={{ x: 0.8, y: 1 }}
-        style={styles.container}
-      >
+      <LinearGradient colors={[BG1, BG2, "#050E18"]} style={styles.container}>
         <View style={styles.topNav}>
           <Pressable onPress={() => router.replace("/workouts")} style={styles.backBtn}>
             <Ionicons name="arrow-back" size={20} color={GOLD} />
@@ -124,12 +156,27 @@ export default function WorkoutsGroup() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <Pressable
-              onPress={() =>
+              onPress={() => {
+                // ✅ Legs go straight to tracker (no detail page)
+                if (g === "legs") {
+                  router.push({
+                    pathname: "/tracker",
+                    params: {
+                      group: "legs",
+                      exercise: item.id,
+                      variant: item.id,
+                      title: item.title,
+                    },
+                  });
+                  return;
+                }
+
+                // Chest + Shoulders still go to /exercise for sub-variations
                 router.push({
                   pathname: "/exercise",
                   params: { group: group ?? "", exercise: item.id },
-                })
-              }
+                });
+              }}
               style={({ pressed }) => [
                 styles.row,
                 pressed && { transform: [{ scale: 0.99 }], opacity: 0.96 },
@@ -154,7 +201,6 @@ export default function WorkoutsGroup() {
                 ) : (
                   <View style={styles.thumbWrap} />
                 )}
-
                 <Ionicons name="chevron-forward" size={20} color={GOLD} />
               </View>
             </Pressable>
@@ -249,12 +295,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  right: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginLeft: 12,
-  },
+  right: { flexDirection: "row", alignItems: "center", gap: 10, marginLeft: 12 },
   thumbWrap: {
     width: 56,
     height: 40,

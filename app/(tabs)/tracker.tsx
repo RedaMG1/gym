@@ -26,11 +26,11 @@ export default function Tracker() {
 
   const displayTitle = title ? String(title).toUpperCase() : prettyName(variant);
 
-  const gif = useMemo(() => {
+  const media = useMemo(() => {
     if (!variant) return undefined;
-
     const g = (group ?? "").toLowerCase();
 
+    // CHEST
     const chest: Record<string, any> = {
       "flat-bench-press": require("../../assets/gifs/chest/flat Bench Press.gif"),
       "incline-bench-press": require("../../assets/gifs/chest/incline Bench Press.gif"),
@@ -41,6 +41,7 @@ export default function Tracker() {
       "chest-dips": require("../../assets/gifs/chest/chest dips.gif"),
     };
 
+    // SHOULDERS (exact names)
     const shoulders: Record<string, any> = {
       "dumbbell-shoulder-press": require("../../assets/gifs/shoulders/dumbbell Shoulder Press.gif"),
       "machine-shoulder-press": require("../../assets/gifs/shoulders/machine Shoulder Press.gif"),
@@ -49,8 +50,18 @@ export default function Tracker() {
       "reverse-pec-deck-fly": require("../../assets/gifs/shoulders/reverse Pec Deck Fly.gif"),
     };
 
+    // ✅ LEGS (EXACT names from your screenshot)
+    const legs: Record<string, any> = {
+      "leg-press": require("../../assets/gifs/legs/leg press.gif"),
+      "leg-extension": require("../../assets/gifs/legs/leg extension.gif"),
+      "leg-curl": require("../../assets/gifs/legs/Leg curl.gif"),
+      "hip-abduction": require("../../assets/gifs/legs/hip abduction.gif"),
+      "hack-squat": require("../../assets/gifs/legs/hack squat.jpg"),
+    };
+
     if (g === "chest") return chest[String(variant)];
     if (g === "shoulders") return shoulders[String(variant)];
+    if (g === "legs") return legs[String(variant)];
     return undefined;
   }, [group, variant]);
 
@@ -69,13 +80,7 @@ export default function Tracker() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <LinearGradient
-        colors={[BG1, BG2, "#050E18"]}
-        start={{ x: 0.2, y: 0 }}
-        end={{ x: 0.8, y: 1 }}
-        style={styles.container}
-      >
-        {/* Top Nav with title */}
+      <LinearGradient colors={[BG1, BG2, "#050E18"]} style={styles.container}>
         <View style={styles.topNav}>
           <Pressable
             onPress={() =>
@@ -94,23 +99,20 @@ export default function Tracker() {
             <Text style={styles.subtitle}>TRACKER</Text>
           </View>
 
-          {/* spacer to keep title centered */}
           <View style={{ width: 40 }} />
         </View>
 
         <View style={styles.body}>
-          {/* GIF CARD */}
           <View style={styles.card}>
             <View style={styles.cardInner}>
-              {gif ? (
-                <Image source={gif} style={styles.gif} resizeMode="contain" />
+              {media ? (
+                <Image source={media} style={styles.media} resizeMode="contain" />
               ) : (
-                <View style={styles.gifEmpty} />
+                <View style={styles.mediaEmpty} />
               )}
             </View>
           </View>
 
-          {/* WEIGHT CARD */}
           <View style={styles.card}>
             <View style={styles.weightHeader}>
               <Text style={styles.h1}>Current weight</Text>
@@ -207,13 +209,13 @@ const styles = StyleSheet.create({
     padding: 14,
   },
 
-  gif: {
+  media: {
     width: "100%",
     height: 220,
     borderRadius: 16,
     backgroundColor: "rgba(0,0,0,0.12)",
   },
-  gifEmpty: {
+  mediaEmpty: {
     height: 220,
     borderRadius: 16,
     backgroundColor: "rgba(0,0,0,0.12)",
