@@ -28,6 +28,7 @@ export default function TabLayout() {
         },
       }}
     >
+      {/* ✅ Only these 3 should be visible */}
       <Tabs.Screen
         name="index"
         options={{
@@ -58,9 +59,12 @@ export default function TabLayout() {
         }}
       />
 
-      {/* hide anything you don't want */}
-      <Tabs.Screen name="explore" options={{ href: null }} />
+      {/* ❌ Hide these from the navbar, but keep routes working */}
       <Tabs.Screen name="workouts-group" options={{ href: null }} />
+      <Tabs.Screen name="exercise" options={{ href: null }} />
+      <Tabs.Screen name="tracker" options={{ href: null }} />
+      <Tabs.Screen name="programs" options={{ href: null }} />
+      <Tabs.Screen name="explore" options={{ href: null }} />
     </Tabs>
   );
 }
