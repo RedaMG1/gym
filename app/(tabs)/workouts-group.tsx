@@ -21,7 +21,7 @@ type Block = {
   title: string;
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
-  thumb?: any; // gif thumbnail on the right
+  thumb?: any;
 };
 
 export default function WorkoutsGroup() {
@@ -29,14 +29,15 @@ export default function WorkoutsGroup() {
   const title = prettyName(group);
 
   const blocks: Block[] = useMemo(() => {
-    if ((group ?? "").toLowerCase() === "chest") {
+    const g = (group ?? "").toLowerCase();
+
+    if (g === "chest") {
       return [
         {
           id: "bench-press",
           title: "BENCH PRESS",
           subtitle: "Flat • Incline • Decline",
           icon: "barbell-outline",
-          // use one of the variations as the thumbnail
           thumb: require("../../assets/gifs/chest/flat Bench Press.gif"),
         },
         {
@@ -63,14 +64,35 @@ export default function WorkoutsGroup() {
       ];
     }
 
-    return [
-      {
-        id: "coming-soon",
-        title: "COMING SOON",
-        subtitle: "Add exercises for this group",
-        icon: "sparkles-outline",
-      },
-    ];
+    // ✅ SHOULDERS (ONLY your list, no coming soon)
+    if (g === "shoulders") {
+      return [
+        {
+          id: "shoulder-press",
+          title: "SHOULDER PRESS",
+          subtitle: "Dumbbell • Machine",
+          icon: "barbell-outline",
+          thumb: require("../../assets/gifs/shoulders/dumbbell Shoulder Press.gif"),
+        },
+        {
+          id: "lateral-raise",
+          title: "LATERAL RAISE",
+          subtitle: "Dumbbell • Cable",
+          icon: "swap-horizontal-outline",
+          thumb: require("../../assets/gifs/shoulders/dumbbell lateral Raise.gif"),
+        },
+        {
+          id: "rear-delt-fly",
+          title: "REAR DELT FLY",
+          subtitle: "Reverse Pec Deck",
+          icon: "aperture-outline",
+          thumb: require("../../assets/gifs/shoulders/reverse Pec Deck Fly.gif"),
+        },
+      ];
+    }
+
+    // If you open another group you haven't built yet, show nothing (empty)
+    return [];
   }, [group]);
 
   return (
@@ -124,7 +146,6 @@ export default function WorkoutsGroup() {
                 </View>
               </View>
 
-              {/* RIGHT SIDE: small gif thumbnail + chevron */}
               <View style={styles.right}>
                 {item.thumb ? (
                   <View style={styles.thumbWrap}>
@@ -234,8 +255,6 @@ const styles = StyleSheet.create({
     gap: 10,
     marginLeft: 12,
   },
-
-  // This is the red-square area (thumbnail)
   thumbWrap: {
     width: 56,
     height: 40,
@@ -245,8 +264,5 @@ const styles = StyleSheet.create({
     borderColor: "rgba(214,181,106,0.20)",
     backgroundColor: "rgba(0,0,0,0.20)",
   },
-  thumbImg: {
-    width: "100%",
-    height: "100%",
-  },
+  thumbImg: { width: "100%", height: "100%" },
 });

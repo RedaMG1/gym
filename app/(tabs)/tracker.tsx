@@ -11,40 +11,56 @@ const CARD_BG = "rgba(12, 35, 52, 0.55)";
 const CARD_BORDER = "rgba(214,181,106,0.22)";
 const MUTED = "rgba(255,255,255,0.65)";
 
+function prettyName(v?: string) {
+  if (!v) return "";
+  return v.replace(/-/g, " ").toUpperCase();
+}
+
 export default function Tracker() {
-  const { group, variant } = useLocalSearchParams<{
+  const { group, exercise, variant, title } = useLocalSearchParams<{
     group?: string;
+    exercise?: string;
     variant?: string;
+    title?: string;
   }>();
 
-  const gif = useMemo(() => {
-    if ((group ?? "").toLowerCase() !== "chest") return undefined;
+  const displayTitle = title ? String(title).toUpperCase() : prettyName(variant);
 
-    const map: Record<string, any> = {
+  const gif = useMemo(() => {
+    if (!variant) return undefined;
+
+    const g = (group ?? "").toLowerCase();
+
+    const chest: Record<string, any> = {
       "flat-bench-press": require("../../assets/gifs/chest/flat Bench Press.gif"),
       "incline-bench-press": require("../../assets/gifs/chest/incline Bench Press.gif"),
       "decline-bench-press": require("../../assets/gifs/chest/decline Bench Press.gif"),
-
       "flat-dumbbell-press": require("../../assets/gifs/chest/flat Dumbbell Press.gif"),
       "incline-dumbbell-press": require("../../assets/gifs/chest/incline Dumbbell Press.gif"),
-
       "chest-fly": require("../../assets/gifs/chest/chest flys.gif"),
       "chest-dips": require("../../assets/gifs/chest/chest dips.gif"),
     };
 
-    return variant ? map[String(variant)] : undefined;
+    const shoulders: Record<string, any> = {
+      "dumbbell-shoulder-press": require("../../assets/gifs/shoulders/dumbbell Shoulder Press.gif"),
+      "machine-shoulder-press": require("../../assets/gifs/shoulders/machine Shoulder Press.gif"),
+      "dumbbell-lateral-raise": require("../../assets/gifs/shoulders/dumbbell lateral Raise.gif"),
+      "cable-lateral-raise": require("../../assets/gifs/shoulders/cable Lateral Raise.gif"),
+      "reverse-pec-deck-fly": require("../../assets/gifs/shoulders/reverse Pec Deck Fly.gif"),
+    };
+
+    if (g === "chest") return chest[String(variant)];
+    if (g === "shoulders") return shoulders[String(variant)];
+    return undefined;
   }, [group, variant]);
 
-  // Weight state
-  const [currentWeight, setCurrentWeight] = useState<number>(80); // default (change if you want)
+  const [currentWeight, setCurrentWeight] = useState<number>(80);
   const [newWeight, setNewWeight] = useState<string>("");
 
   function submitWeight() {
     const cleaned = newWeight.replace(",", ".").trim();
     const value = Number(cleaned);
-
     if (!Number.isFinite(value) || value <= 0) return;
-
     setCurrentWeight(value);
     setNewWeight("");
   }
@@ -59,21 +75,37 @@ export default function Tracker() {
         end={{ x: 0.8, y: 1 }}
         style={styles.container}
       >
-        {/* Back button */}
+        {/* Top Nav with title */}
         <View style={styles.topNav}>
-          <Pressable onPress={() => router.back()} style={styles.backBtn}>
+          <Pressable
+            onPress={() =>
+              router.replace({
+                pathname: "/exercise",
+                params: { group: group ?? "", exercise: exercise ?? "" },
+              })
+            }
+            style={styles.backBtn}
+          >
             <Ionicons name="arrow-back" size={20} color={GOLD} />
           </Pressable>
+
+          <View style={styles.centerTitle}>
+            <Text style={styles.title}>{displayTitle}</Text>
+            <Text style={styles.subtitle}>TRACKER</Text>
+          </View>
+
+          {/* spacer to keep title centered */}
+          <View style={{ width: 40 }} />
         </View>
 
         <View style={styles.body}>
-          {/* GIF CARD (shorter) */}
+          {/* GIF CARD */}
           <View style={styles.card}>
             <View style={styles.cardInner}>
               {gif ? (
                 <Image source={gif} style={styles.gif} resizeMode="contain" />
               ) : (
-                <View style={{ height: 220 }} />
+                <View style={styles.gifEmpty} />
               )}
             </View>
           </View>
@@ -110,9 +142,7 @@ export default function Tracker() {
               </Pressable>
             </View>
 
-            <Text style={styles.note}>
-              Tip: use “.” for decimals (82.5). Commas also work.
-            </Text>
+            <Text style={styles.note}>Tip: use “.” for decimals (82.5). Commas also work.</Text>
           </View>
         </View>
       </LinearGradient>
@@ -127,6 +157,9 @@ const styles = StyleSheet.create({
     paddingTop: 44,
     paddingHorizontal: 16,
     paddingBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   backBtn: {
     width: 40,
@@ -137,6 +170,20 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.2)",
     alignItems: "center",
     justifyContent: "center",
+  },
+  centerTitle: { alignItems: "center", gap: 4, flex: 1 },
+  title: {
+    color: "rgba(255,255,255,0.88)",
+    fontWeight: "900",
+    letterSpacing: 2,
+    fontSize: 14,
+    textAlign: "center",
+  },
+  subtitle: {
+    color: "rgba(214,181,106,0.65)",
+    letterSpacing: 1.4,
+    fontWeight: "700",
+    fontSize: 11,
   },
 
   body: {
@@ -160,10 +207,14 @@ const styles = StyleSheet.create({
     padding: 14,
   },
 
-  // shorter gif
   gif: {
     width: "100%",
-    height: 220, // ✅ less height
+    height: 220,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.12)",
+  },
+  gifEmpty: {
+    height: 220,
     borderRadius: 16,
     backgroundColor: "rgba(0,0,0,0.12)",
   },

@@ -16,52 +16,110 @@ function prettyName(v?: string) {
   return v.replace(/-/g, " ").toUpperCase();
 }
 
-type Row = { id: string; title: string; subtitle?: string; gif?: any };
+type Row = { id: string; title: string; gif?: any };
 
 export default function ExercisePage() {
   const { group, exercise } = useLocalSearchParams<{ group?: string; exercise?: string }>();
-
   const title = prettyName(exercise);
 
-  // ✅ match your current file names exactly (spaces + case)
-  const gifs = useMemo(() => {
-    if ((group ?? "").toLowerCase() !== "chest") return {};
-    return {
-      "chest-fly": require("../../assets/gifs/chest/chest flys.gif"),
-      "chest-dips": require("../../assets/gifs/chest/chest dips.gif"),
+  // ✅ Centralized GIF map (exact filenames)
+  const chestGifs = useMemo(
+    () =>
+      ({
+        "chest-fly": require("../../assets/gifs/chest/chest flys.gif"),
+        "chest-dips": require("../../assets/gifs/chest/chest dips.gif"),
+        "flat-bench-press": require("../../assets/gifs/chest/flat Bench Press.gif"),
+        "incline-bench-press": require("../../assets/gifs/chest/incline Bench Press.gif"),
+        "decline-bench-press": require("../../assets/gifs/chest/decline Bench Press.gif"),
+        "flat-dumbbell-press": require("../../assets/gifs/chest/flat Dumbbell Press.gif"),
+        "incline-dumbbell-press": require("../../assets/gifs/chest/incline Dumbbell Press.gif"),
+      }) as Record<string, any>,
+    []
+  );
 
-      "flat-bench-press": require("../../assets/gifs/chest/flat Bench Press.gif"),
-      "incline-bench-press": require("../../assets/gifs/chest/incline Bench Press.gif"),
-      "decline-bench-press": require("../../assets/gifs/chest/decline Bench Press.gif"),
-
-      "flat-dumbbell-press": require("../../assets/gifs/chest/flat Dumbbell Press.gif"),
-      "incline-dumbbell-press": require("../../assets/gifs/chest/incline Dumbbell Press.gif"),
-    } as Record<string, any>;
-  }, [group]);
+  const shoulderGifs = useMemo(
+    () =>
+      ({
+        "dumbbell-shoulder-press": require("../../assets/gifs/shoulders/dumbbell Shoulder Press.gif"),
+        "machine-shoulder-press": require("../../assets/gifs/shoulders/machine Shoulder Press.gif"),
+        "dumbbell-lateral-raise": require("../../assets/gifs/shoulders/dumbbell lateral Raise.gif"),
+        // ✅ THIS is the one you’re missing in UI:
+        "cable-lateral-raise": require("../../assets/gifs/shoulders/cable Lateral Raise.gif"),
+        "reverse-pec-deck-fly": require("../../assets/gifs/shoulders/reverse Pec Deck Fly.gif"),
+      }) as Record<string, any>,
+    []
+  );
 
   const rows: Row[] = useMemo(() => {
-    switch (exercise) {
-      case "bench-press":
-        return [
-          { id: "flat-bench-press", title: "FLAT BENCH PRESS", gif: gifs["flat-bench-press"] },
-          { id: "incline-bench-press", title: "INCLINE BENCH PRESS", gif: gifs["incline-bench-press"] },
-          { id: "decline-bench-press", title: "DECLINE BENCH PRESS", gif: gifs["decline-bench-press"] },
-        ];
-      case "dumbbell-press":
-        return [
-          { id: "flat-dumbbell-press", title: "FLAT DUMBBELL PRESS", gif: gifs["flat-dumbbell-press"] },
-          { id: "incline-dumbbell-press", title: "INCLINE DUMBBELL PRESS", gif: gifs["incline-dumbbell-press"] },
-        ];
-      case "chest-fly":
-        return [{ id: "chest-fly", title: "CHEST FLY", subtitle: "Start / Track", gif: gifs["chest-fly"] }];
-      case "chest-dips":
-        return [{ id: "chest-dips", title: "CHEST DIPS", subtitle: "Start / Track", gif: gifs["chest-dips"] }];
-      default:
-        return [{ id: "coming-soon", title: "COMING SOON" }];
-    }
-  }, [exercise, gifs]);
+    const g = (group ?? "").toLowerCase();
 
-  const hasSubs = exercise === "bench-press" || exercise === "dumbbell-press";
+    if (g === "chest") {
+      switch (exercise) {
+        case "bench-press":
+          return [
+            { id: "flat-bench-press", title: "FLAT BENCH PRESS", gif: chestGifs["flat-bench-press"] },
+            { id: "incline-bench-press", title: "INCLINE BENCH PRESS", gif: chestGifs["incline-bench-press"] },
+            { id: "decline-bench-press", title: "DECLINE BENCH PRESS", gif: chestGifs["decline-bench-press"] },
+          ];
+        case "dumbbell-press":
+          return [
+            { id: "flat-dumbbell-press", title: "FLAT DUMBBELL PRESS", gif: chestGifs["flat-dumbbell-press"] },
+            { id: "incline-dumbbell-press", title: "INCLINE DUMBBELL PRESS", gif: chestGifs["incline-dumbbell-press"] },
+          ];
+        case "chest-fly":
+          return [{ id: "chest-fly", title: "CHEST FLY", gif: chestGifs["chest-fly"] }];
+        case "chest-dips":
+          return [{ id: "chest-dips", title: "CHEST DIPS", gif: chestGifs["chest-dips"] }];
+        default:
+          return [];
+      }
+    }
+
+    if (g === "shoulders") {
+      switch (exercise) {
+        case "shoulder-press":
+          return [
+            {
+              id: "dumbbell-shoulder-press",
+              title: "DUMBBELL SHOULDER PRESS",
+              gif: shoulderGifs["dumbbell-shoulder-press"],
+            },
+            {
+              id: "machine-shoulder-press",
+              title: "MACHINE SHOULDER PRESS",
+              gif: shoulderGifs["machine-shoulder-press"],
+            },
+          ];
+
+        case "lateral-raise":
+          return [
+            {
+              id: "dumbbell-lateral-raise",
+              title: "DUMBBELL LATERAL RAISE",
+              gif: shoulderGifs["dumbbell-lateral-raise"],
+            },
+            {
+              id: "cable-lateral-raise",
+              title: "CABLE LATERAL RAISE",
+              gif: shoulderGifs["cable-lateral-raise"],
+            },
+          ];
+
+        case "rear-delt-fly":
+          return [
+            {
+              id: "reverse-pec-deck-fly",
+              title: "REVERSE PEC DECK FLY",
+              gif: shoulderGifs["reverse-pec-deck-fly"],
+            },
+          ];
+        default:
+          return [];
+      }
+    }
+
+    return [];
+  }, [group, exercise, chestGifs, shoulderGifs]);
 
   return (
     <>
@@ -73,7 +131,6 @@ export default function ExercisePage() {
         end={{ x: 0.8, y: 1 }}
         style={styles.container}
       >
-        {/* Header */}
         <View style={styles.topNav}>
           <Pressable
             onPress={() =>
@@ -89,13 +146,12 @@ export default function ExercisePage() {
 
           <View style={styles.navCenter}>
             <Text style={styles.navTitle}>{title}</Text>
-            <Text style={styles.navSub}>{hasSubs ? "SELECT A VARIATION" : "EXERCISE"}</Text>
+            <Text style={styles.navSub}>SELECT A VARIATION</Text>
           </View>
 
           <View style={{ width: 40 }} />
         </View>
 
-        {/* List only (NO BIG IMAGE) */}
         <FlatList
           data={rows}
           keyExtractor={(i) => i.id}
@@ -105,12 +161,7 @@ export default function ExercisePage() {
               onPress={() =>
                 router.push({
                   pathname: "/tracker",
-                  params: {
-                    group: group ?? "",
-                    exercise: exercise ?? "",
-                    variant: item.id,
-                    title: item.title,
-                  },
+                  params: { group: group ?? "", exercise: exercise ?? "", variant: item.id, title: item.title },
                 })
               }
               style={({ pressed }) => [
@@ -123,14 +174,11 @@ export default function ExercisePage() {
                   {item.gif ? (
                     <Image source={item.gif} style={styles.thumbImg} resizeMode="cover" />
                   ) : (
-                    <Ionicons name="flash-outline" size={18} color={GOLD} />
+                    <Ionicons name="image-outline" size={18} color={GOLD} />
                   )}
                 </View>
 
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.rowTitle}>{item.title}</Text>
-                  {!!item.subtitle && <Text style={styles.rowSub}>{item.subtitle}</Text>}
-                </View>
+                <Text style={styles.rowTitle}>{item.title}</Text>
               </View>
 
               <Ionicons name="chevron-forward" size={20} color={GOLD} />
@@ -220,11 +268,5 @@ const styles = StyleSheet.create({
     letterSpacing: 1.4,
     fontWeight: "900",
     color: "#fff",
-  },
-  rowSub: {
-    marginTop: 4,
-    fontSize: 11,
-    color: MUTED,
-    fontWeight: "600",
   },
 });
